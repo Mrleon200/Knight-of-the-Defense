@@ -83,4 +83,14 @@ public class GlobalSkillSystem : MonoBehaviour
         }
         _nextReinforcementTime = Time.time + reinforcementCooldown;
     }
+
+    public float MeteorCooldownPercent()
+    {
+    return Mathf.Clamp01(1f - (_nextMeteorTime - Time.time) / meteorCooldown);
+    }
+
+    public float ReinforceCooldownPercent()
+    {
+    return Mathf.Clamp01(1f - (_nextReinforcementTime - Time.time) / reinforcementCooldown);
+    }
 }
