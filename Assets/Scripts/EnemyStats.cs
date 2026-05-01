@@ -2,31 +2,55 @@ using UnityEngine;
 
 public class EnemyStats : MonoBehaviour
 {
+    [Header("Chi so co ban")]
     public float maxHP      = 100f;
-    public float armor      = 0f;
+    public float armor      = 0f;   // giam Physical damage
     public int   goldReward = 10;
 
-    public float CurrentHP { get; private set; }
-    public bool  IsDead    => CurrentHP <= 0;
+    private float _currentHP;
+    private bool  _isDead = false;
 
-    private void Start() => CurrentHP = maxHP;
+    // [FIX] Them property public de SoldierUnit co the kiem tra
+    public bool IsDead => _isDead;
 
-    public void TakeDamage(float damage, DamageType type = DamageType.Physical)
+    private void Awake()
     {
-        if (IsDead) return;
-        float final = (type == DamageType.Physical)
-            ? Mathf.Max(damage - armor, 1f)
-            : damage;
-        CurrentHP = Mathf.Max(CurrentHP - final, 0);
-        if (IsDead) Die();
+        _currentHP = maxHP;
     }
 
-    public void ScaleHP(float multiplier) => maxHP *= multiplier;
+    // Goi tu WaveManager khi spawn de scale do kho
+    public void ScaleHP(float multiplier)
+    {
+        maxHP      *= multiplier;
+        _currentHP  = maxHP;
+    }
+
+    public void TakeDamage(float amount, DamageType type)
+    {
+        if (_isDead) return;
+
+        float finalDamage = amount;
+
+        if (type == DamageType.Physical)
+            finalDamage = Mathf.Max(amount - armor, 1f); // toi thieu 1 damage
+        // Magic: bo qua armor hoan toan
+
+        _currentHP -= finalDamage;
+
+        if (_currentHP <= 0f) Die();
+    }
 
     private void Die()
     {
+        if (_isDead) return;
+        _isDead = true;
+
+        // Thuong vang
         GameManager.Instance?.AddGold(goldReward);
+
+        // [QUAN TRONG] Bao WaveManager enemy nay da chet
         WaveManager.Instance?.NotifyEnemyDied();
+
         Destroy(gameObject);
     }
 }

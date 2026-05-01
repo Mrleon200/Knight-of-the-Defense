@@ -42,16 +42,31 @@ public class WaveManager : MonoBehaviour
 
         while (currentWave < waves.Count)
         {
+            // [FIX] Dung coroutine neu game over
+            if (GameManager.Instance != null && GameManager.Instance.isGameOver) yield break;
+
             WaveData wave = waves[currentWave];
             Debug.Log($"[Wave] {wave.waveName} bat dau");
 
+            UIManager.Instance?.ShowWaveNotification(wave.waveName);
+
             yield return StartCoroutine(SpawnWave(wave));
-            yield return new WaitUntil(() => enemiesAlive <= 0);
+
+            // [FIX] Cho tat ca enemy chet, nhung thoat ngay neu game over
+            yield return new WaitUntil(() =>
+                enemiesAlive <= 0 ||
+                (GameManager.Instance != null && GameManager.Instance.isGameOver)
+            );
+
+            // [FIX] Neu game over thi dung lai, khong win
+            if (GameManager.Instance != null && GameManager.Instance.isGameOver) yield break;
 
             currentWave++;
+            UIManager.Instance?.UpdateWave(currentWave, waves.Count);
 
             if (currentWave >= waves.Count)
             {
+                // Toan bo wave da xong va khong game over → Win!
                 GameManager.Instance?.TriggerWin();
                 yield break;
             }
@@ -64,6 +79,9 @@ public class WaveManager : MonoBehaviour
     {
         for (int i = 0; i < wave.enemyCount; i++)
         {
+            // [FIX] Dung spawn neu game over
+            if (GameManager.Instance != null && GameManager.Instance.isGameOver) yield break;
+
             SpawnEnemy(wave);
             yield return new WaitForSeconds(wave.spawnInterval);
         }
@@ -72,9 +90,12 @@ public class WaveManager : MonoBehaviour
     private void SpawnEnemy(WaveData wave)
     {
         if (wave.enemyPrefab == null || spawnPoint == null) return;
+
         GameObject obj = Instantiate(wave.enemyPrefab, spawnPoint.position, Quaternion.identity);
+
         EnemyStats stats = obj.GetComponent<EnemyStats>();
         if (stats != null) stats.ScaleHP(wave.hpMultiplier);
+
         enemiesAlive++;
     }
 

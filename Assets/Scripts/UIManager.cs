@@ -2,11 +2,6 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
-/// <summary>
-/// Quan ly toan bo UI: HUD, Win/Lose screen.
-/// SETUP: Tao GameObject "UIManager" → gan script nay
-///        → keo cac Text va Panel tu Canvas vao cac slot.
-/// </summary>
 public class UIManager : MonoBehaviour
 {
     public static UIManager Instance { get; private set; }
@@ -25,13 +20,21 @@ public class UIManager : MonoBehaviour
     public GameObject gameOverScreen;
 
     [Header("Wave Notification")]
-    public GameObject waveNotification;
-    public TextMeshProUGUI waveNotificationText;
+    public GameObject       waveNotification;
+    public TextMeshProUGUI  waveNotificationText;
 
     private void Awake()
     {
         if (Instance == null) Instance = this;
         else Destroy(gameObject);
+    }
+
+    private void Start()
+    {
+        // An cac screen luc dau
+        if (winScreen     != null) winScreen.SetActive(false);
+        if (gameOverScreen!= null) gameOverScreen.SetActive(false);
+        if (waveNotification != null) waveNotification.SetActive(false);
     }
 
     private void Update()
@@ -44,14 +47,9 @@ public class UIManager : MonoBehaviour
             if (reinforceCooldownFill != null)
                 reinforceCooldownFill.fillAmount = GlobalSkillSystem.Instance.ReinforceCooldownPercent();
         }
-
-        // Cap nhat wave text
-        if (WaveManager.Instance != null && waveText != null)
-            waveText.text = $"Wave: {WaveManager.Instance.currentWave + 1}/{WaveManager.Instance.totalWaves}";
     }
 
     // ── Cap nhat HUD ──────────────────────────────────────
-
     public void UpdateGold(int value)
     {
         if (goldText != null) goldText.text = $"Gold: {value}";
@@ -62,8 +60,13 @@ public class UIManager : MonoBehaviour
         if (livesText != null) livesText.text = $"Lives: {value}";
     }
 
-    // ── Win / Lose screens ────────────────────────────────
+    // [FIX] Them ham UpdateWave de WaveManager co the goi
+    public void UpdateWave(int current, int total)
+    {
+        if (waveText != null) waveText.text = $"Wave: {current}/{total}";
+    }
 
+    // ── Win / Lose screens ────────────────────────────────
     public void ShowWinScreen()
     {
         if (winScreen != null) winScreen.SetActive(true);
@@ -74,12 +77,12 @@ public class UIManager : MonoBehaviour
         if (gameOverScreen != null) gameOverScreen.SetActive(true);
     }
 
-    // ── Wave notification ─────────────────────────────────
-
-    public void ShowWaveNotification(int waveNumber)
+    // [FIX] Doi tham so tu int sang string de khop voi WaveManager
+    public void ShowWaveNotification(string waveName)
     {
         if (waveNotification == null) return;
-        waveNotificationText.text = $"Wave {waveNumber} !";
+        if (waveNotificationText != null)
+            waveNotificationText.text = waveName + " !";
         waveNotification.SetActive(true);
         Invoke(nameof(HideWaveNotification), 2f);
     }

@@ -27,7 +27,6 @@ public class GameManager : MonoBehaviour
     }
 
     // ── Vang ──────────────────────────────────────────────
-
     public void AddGold(int amount)
     {
         gold += amount;
@@ -43,21 +42,22 @@ public class GameManager : MonoBehaviour
     }
 
     // ── Mau ───────────────────────────────────────────────
-
     public void LoseLife(int amount = 1)
     {
         if (isGameOver) return;
+
         lives = Mathf.Max(lives - amount, 0);
         UIManager.Instance?.UpdateLives(lives);
+
         if (lives <= 0) TriggerGameOver();
     }
 
     // ── Thang / Thua ──────────────────────────────────────
-
     public void TriggerWin()
     {
         if (isGameOver) return;
         isGameOver = true;
+        Time.timeScale = 0f; // [FIX] dung game lai
         UIManager.Instance?.ShowWinScreen();
     }
 
@@ -65,9 +65,13 @@ public class GameManager : MonoBehaviour
     {
         if (isGameOver) return;
         isGameOver = true;
+        Time.timeScale = 0f; // [FIX] dung game lai
         UIManager.Instance?.ShowGameOverScreen();
     }
 
     public void RestartGame()
-        => SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+    {
+        Time.timeScale = 1f; // [FIX] reset timeScale truoc khi restart
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+    }
 }
