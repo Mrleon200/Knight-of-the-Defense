@@ -20,14 +20,14 @@ public class TowerMenuButton : MonoBehaviour
 
     private Button _button;
 
-    // 🔥 FIX 1: luôn đảm bảo có Button
+    //  FIX 1: luôn đảm bảo có Button
     private void Awake()
     {
         _button = GetComponent<Button>();
 
         if (_button == null)
         {
-            Debug.LogError("❌ Button component missing on " + name);
+            Debug.LogError(" Button component missing on " + name);
             return;
         }
 
@@ -40,7 +40,7 @@ public class TowerMenuButton : MonoBehaviour
             costText.text = towerCost + "G";
     }
 
-    // 🔥 FIX 2: tự bảo vệ khỏi null
+    //  FIX 2: tự bảo vệ khỏi null
     public void RefreshAffordability(int currentGold)
     {
         if (_button == null)
@@ -76,7 +76,7 @@ public class TowerMenuButton : MonoBehaviour
             BuildMenuUI.Instance.SelectTower(towerIndex);
     }
 
-    // 🔥 hiệu ứng rung khi thiếu tiền (giống KR)
+    //  hiệu ứng rung khi thiếu tiền (giống KR)
     public void PlayErrorFeedback()
     {
         StartCoroutine(ShakeAnimation());

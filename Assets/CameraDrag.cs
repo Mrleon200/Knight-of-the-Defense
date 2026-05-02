@@ -5,7 +5,6 @@ public class CameraDrag : MonoBehaviour
 {
     [Header("Drag")]
     public float dragSpeed = 0.01f;
-    public float inertia = 5f;
 
     [Header("Zoom")]
     public float zoomSpeed = 5f;
@@ -19,25 +18,25 @@ public class CameraDrag : MonoBehaviour
     private Camera cam;
 
     private Vector3 lastPos;
-    private Vector3 velocity;
     private bool isDragging = false;
 
     void Start()
     {
         cam = Camera.main;
+        FitCameraToMap(); // 🔥 fix mobile + aspect
     }
 
     void Update()
     {
-        HandleMouse();
-        HandleTouch();
+        HandleMouseDrag();
+        HandleTouchDrag();
         HandleZoom();
-        ApplyInertia();
-        ClampPosition();
+
+        ClampCamera(); // 🔥 QUAN TRỌNG: luôn clamp sau khi di chuyển
     }
 
-    // ================= PC =================
-    void HandleMouse()
+    // ================= DRAG PC =================
+    void HandleMouseDrag()
     {
         if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
             return;
@@ -46,7 +45,6 @@ public class CameraDrag : MonoBehaviour
         {
             isDragging = true;
             lastPos = Input.mousePosition;
-            velocity = Vector3.zero;
         }
 
         if (Input.GetMouseButtonUp(1))
@@ -60,44 +58,38 @@ public class CameraDrag : MonoBehaviour
             Vector3 move = new Vector3(delta.x, delta.y, 0) * dragSpeed;
 
             transform.position -= move;
-            velocity = move;
-
             lastPos = Input.mousePosition;
         }
     }
 
-    // ================= MOBILE =================
-    void HandleTouch()
+    // ================= DRAG MOBILE =================
+    void HandleTouchDrag()
     {
-        if (Input.touchCount == 1)
+        if (Input.touchCount != 1) return;
+
+        Touch touch = Input.GetTouch(0);
+
+        if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject(touch.fingerId))
+            return;
+
+        if (touch.phase == TouchPhase.Began)
         {
-            Touch touch = Input.GetTouch(0);
+            lastPos = touch.position;
+        }
+        else if (touch.phase == TouchPhase.Moved)
+        {
+            Vector3 delta = touch.position - (Vector2)lastPos;
+            Vector3 move = new Vector3(delta.x, delta.y, 0) * dragSpeed;
 
-            if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject(touch.fingerId))
-                return;
-
-            if (touch.phase == TouchPhase.Began)
-            {
-                lastPos = touch.position;
-                velocity = Vector3.zero;
-            }
-            else if (touch.phase == TouchPhase.Moved)
-            {
-                Vector3 delta = touch.position - (Vector2)lastPos;
-                Vector3 move = new Vector3(delta.x, delta.y, 0) * dragSpeed;
-
-                transform.position -= move;
-                velocity = move;
-
-                lastPos = touch.position;
-            }
+            transform.position -= move;
+            lastPos = touch.position;
         }
     }
 
     // ================= ZOOM =================
     void HandleZoom()
     {
-        // PC scroll
+        // PC
         float scroll = Input.GetAxis("Mouse ScrollWheel");
         if (scroll != 0)
         {
@@ -114,9 +106,9 @@ public class CameraDrag : MonoBehaviour
             Vector2 prev1 = t1.position - t1.deltaPosition;
 
             float prevDist = Vector2.Distance(prev0, prev1);
-            float currentDist = Vector2.Distance(t0.position, t1.position);
+            float currDist = Vector2.Distance(t0.position, t1.position);
 
-            float delta = currentDist - prevDist;
+            float delta = currDist - prevDist;
 
             cam.orthographicSize -= delta * 0.01f;
         }
@@ -124,32 +116,61 @@ public class CameraDrag : MonoBehaviour
         cam.orthographicSize = Mathf.Clamp(cam.orthographicSize, minZoom, maxZoom);
     }
 
-    // ================= INERTIA =================
-    void ApplyInertia()
-    {
-        if (!isDragging)
-        {
-            transform.position -= velocity;
-            velocity = Vector3.Lerp(velocity, Vector3.zero, Time.deltaTime * inertia);
-        }
-    }
-
-    // ================= LIMIT =================
-    void ClampPosition()
+    // ================= CLAMP =================
+    void ClampCamera()
     {
         float camHeight = cam.orthographicSize;
         float camWidth = camHeight * cam.aspect;
 
-        float minX = minBounds.x + camWidth;
-        float maxX = maxBounds.x - camWidth;
-        float minY = minBounds.y + camHeight;
-        float maxY = maxBounds.y - camHeight;
+        float mapWidth = maxBounds.x - minBounds.x;
+        float mapHeight = maxBounds.y - minBounds.y;
 
         Vector3 pos = transform.position;
 
-        pos.x = Mathf.Clamp(pos.x, minX, maxX);
-        pos.y = Mathf.Clamp(pos.y, minY, maxY);
+        // X axis
+        if (mapWidth <= camWidth * 2)
+        {
+            pos.x = (minBounds.x + maxBounds.x) / 2;
+        }
+        else
+        {
+            pos.x = Mathf.Clamp(pos.x,
+                minBounds.x + camWidth,
+                maxBounds.x - camWidth);
+        }
+
+        // Y axis
+        if (mapHeight <= camHeight * 2)
+        {
+            pos.y = (minBounds.y + maxBounds.y) / 2;
+        }
+        else
+        {
+            pos.y = Mathf.Clamp(pos.y,
+                minBounds.y + camHeight,
+                maxBounds.y - camHeight);
+        }
 
         transform.position = pos;
+    }
+
+    // ================= FIT MAP =================
+    void FitCameraToMap()
+    {
+        float mapWidth = maxBounds.x - minBounds.x;
+        float mapHeight = maxBounds.y - minBounds.y;
+
+        float screenRatio = cam.aspect;
+        float targetRatio = mapWidth / mapHeight;
+
+        if (screenRatio >= targetRatio)
+        {
+            cam.orthographicSize = mapHeight / 2f;
+        }
+        else
+        {
+            float difference = targetRatio / screenRatio;
+            cam.orthographicSize = mapHeight / 2f * difference;
+        }
     }
 }
