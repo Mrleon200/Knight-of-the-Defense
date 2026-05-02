@@ -61,6 +61,7 @@ public class TowerShooter : MonoBehaviour
         GameObject obj = Instantiate(data.bulletPrefab, firePoint.position, firePoint.rotation);
         BulletProjectile bp = obj.GetComponent<BulletProjectile>();
         if (bp != null) bp.Init(_currentTarget, data.damage, data.bulletSpeed, data.damageType);
+        Debug.Log("Tower: " + name + " FirePoint: " + firePoint.position);
     }
 
     private void OnDrawGizmosSelected()

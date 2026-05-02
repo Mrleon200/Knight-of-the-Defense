@@ -1,24 +1,51 @@
 using UnityEngine;
 
+/// <summary>
+/// Di chuyen enemy theo 1 WaypointPath duoc assign khi spawn.
+/// Path duoc chon ngau nhien tu WaypointManager.
+/// pathProgress (0→1): Tower dung de target enemy gan base nhat.
+/// State Machine: Move → Blocked → Dead.
+/// </summary>
 public class EnemyMovement : MonoBehaviour
 {
+    [Header("Di chuyen")]
     public float moveSpeed             = 3f;
     public float waypointReachDistance = 0.1f;
 
+    // Tower doc gia tri nay de sort target
     [HideInInspector] public float pathProgress = 0f;
 
+    // State Machine
     public enum EnemyState { Move, Blocked, Dead }
     public EnemyState state { get; private set; } = EnemyState.Move;
 
     [HideInInspector] public SoldierUnit blockedBy = null;
 
-    private int       _waypointIndex     = 0;
-    private Transform _targetWaypoint;
-    private float     _totalPathLength   = 0f;
-    private float     _distanceTravelled = 0f;
+    // Path duoc gan khi spawn
+    private WaypointPath _assignedPath;
+    private int          _waypointIndex     = 0;
+    private Transform    _targetWaypoint;
+    private float        _totalPathLength   = 0f;
+    private float        _distanceTravelled = 0f;
 
     private void Start()
     {
+        // Lay path ngau nhien tu WaypointManager
+        _assignedPath = WaypointManager.Instance?.GetRandomPath();
+
+        if (_assignedPath == null || _assignedPath.Count == 0)
+        {
+            Debug.LogError($"[EnemyMovement] {gameObject.name}: Khong tim thay path!");
+            return;
+        }
+
+        // Dich chuyen den diem bat dau cua path
+        transform.position = new Vector3(
+            _assignedPath.GetWaypoint(0).position.x,
+            _assignedPath.GetWaypoint(0).position.y,
+            0f
+        );
+
         CalculateTotalPathLength();
         SetNextWaypoint();
     }
@@ -30,6 +57,8 @@ public class EnemyMovement : MonoBehaviour
         CheckReached();
         UpdateProgress();
     }
+
+    // ── Di chuyen ─────────────────────────────────────────
 
     private void MoveTowards()
     {
@@ -47,7 +76,7 @@ public class EnemyMovement : MonoBehaviour
             > waypointReachDistance) return;
 
         _waypointIndex++;
-        if (_waypointIndex >= WaypointManager.Instance.GetWaypointCount())
+        if (_waypointIndex >= _assignedPath.Count)
             ReachBase();
         else
             SetNextWaypoint();
@@ -60,20 +89,21 @@ public class EnemyMovement : MonoBehaviour
     }
 
     private void SetNextWaypoint()
-        => _targetWaypoint = WaypointManager.Instance.GetWaypoint(_waypointIndex);
+        => _targetWaypoint = _assignedPath.GetWaypoint(_waypointIndex);
 
     private void CalculateTotalPathLength()
     {
         _totalPathLength = 0f;
-        int count = WaypointManager.Instance.GetWaypointCount();
-        for (int i = 0; i < count - 1; i++)
+        for (int i = 0; i < _assignedPath.Count - 1; i++)
         {
-            Transform a = WaypointManager.Instance.GetWaypoint(i);
-            Transform b = WaypointManager.Instance.GetWaypoint(i + 1);
+            Transform a = _assignedPath.GetWaypoint(i);
+            Transform b = _assignedPath.GetWaypoint(i + 1);
             if (a != null && b != null)
                 _totalPathLength += Vector2.Distance(a.position, b.position);
         }
     }
+
+    // ── Block / Unblock ───────────────────────────────────
 
     public void GetBlocked(SoldierUnit soldier)
     {
@@ -86,6 +116,8 @@ public class EnemyMovement : MonoBehaviour
         state     = EnemyState.Move;
         blockedBy = null;
     }
+
+    // ── Toi Base ──────────────────────────────────────────
 
     private void ReachBase()
     {

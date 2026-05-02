@@ -77,16 +77,19 @@ public class UIManager : MonoBehaviour
         if (gameOverScreen != null) gameOverScreen.SetActive(true);
     }
 
-    // [FIX] Doi tham so tu int sang string de khop voi WaveManager
-    public void ShowWaveNotification(string waveName)
+    
+    public void ShowWaveNotification(int waveNumber)
     {
-        if (waveNotification == null) return;
-        if (waveNotificationText != null)
-            waveNotificationText.text = waveName + " !";
-        waveNotification.SetActive(true);
+    if (waveNotification == null) return;
+
+    if (waveNotificationText != null)
+        waveNotificationText.text = $"Wave {waveNumber}!";
+
+    waveNotification.SetActive(true);
+
+        CancelInvoke(nameof(HideWaveNotification));
         Invoke(nameof(HideWaveNotification), 2f);
     }
-
     private void HideWaveNotification()
     {
         if (waveNotification != null) waveNotification.SetActive(false);

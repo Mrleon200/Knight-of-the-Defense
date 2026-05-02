@@ -48,7 +48,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   data: {fileID: 11400000, guid: 4f1694781790e5c44a70e30cf80bdda8, type: 2}
   characterOnTower: {fileID: 3631810574659511686, guid: ec55e3586e10a524ba742e7cc50ac4f6, type: 3}
-  firePoint: {fileID: 2129824990057891712, guid: 713bdd86ef06f7746a41ea3bbe878b9a, type: 3}
+  firePoint: {fileID: 4296308931435885852}
 --- !u!1 &3972861572639660074
 GameObject:
   m_ObjectHideFlags: 0
