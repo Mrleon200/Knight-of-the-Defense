@@ -2,16 +2,12 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
-/// <summary>
-/// TowerMenuButton - Nút tower trong BuildMenuUI
-/// Gắn vào từng button trong menu vòng tròn
-/// </summary>
 [RequireComponent(typeof(Button))]
 public class TowerMenuButton : MonoBehaviour
 {
     [Header("Tower Info")]
-    public int towerIndex; // 0=Archer, 1=Barracks, 2=Mage
-    public int towerCost;  // Phải khớp với TowerPlacer.towerCosts
+    public int towerIndex;
+    public int towerCost;
 
     [Header("UI References")]
     public Image iconImage;
@@ -19,37 +15,46 @@ public class TowerMenuButton : MonoBehaviour
     public Image buttonBackground;
 
     [Header("Visual States")]
-    public Color affordableColor    = new Color(1f, 1f, 1f, 1f);
+    public Color affordableColor    = Color.white;
     public Color notAffordableColor = new Color(0.5f, 0.5f, 0.5f, 0.7f);
 
     private Button _button;
 
+    // 🔥 FIX 1: luôn đảm bảo có Button
     private void Awake()
     {
         _button = GetComponent<Button>();
-        
-        // Setup onClick
+
+        if (_button == null)
+        {
+            Debug.LogError("❌ Button component missing on " + name);
+            return;
+        }
+
         _button.onClick.AddListener(OnButtonClick);
     }
 
     private void Start()
     {
-        // Hiển thị cost
         if (costText != null)
             costText.text = towerCost + "G";
     }
 
+    // 🔥 FIX 2: tự bảo vệ khỏi null
     public void RefreshAffordability(int currentGold)
     {
+        if (_button == null)
+            _button = GetComponent<Button>();
+
+        if (_button == null) return;
+
         bool canAfford = currentGold >= towerCost;
 
         _button.interactable = canAfford;
 
-        // Đổi màu background
         if (buttonBackground != null)
             buttonBackground.color = canAfford ? affordableColor : notAffordableColor;
 
-        // Đổi alpha icon
         if (iconImage != null)
         {
             Color c = iconImage.color;
@@ -57,7 +62,6 @@ public class TowerMenuButton : MonoBehaviour
             iconImage.color = c;
         }
 
-        // Đổi alpha text
         if (costText != null)
         {
             Color c = costText.color;
@@ -68,16 +72,11 @@ public class TowerMenuButton : MonoBehaviour
 
     private void OnButtonClick()
     {
-        // Gọi BuildMenuUI để xử lý
         if (BuildMenuUI.Instance != null)
-        {
             BuildMenuUI.Instance.SelectTower(towerIndex);
-        }
     }
 
-    /// <summary>
-    /// Hiệu ứng khi build thất bại (thiếu tiền)
-    /// </summary>
+    // 🔥 hiệu ứng rung khi thiếu tiền (giống KR)
     public void PlayErrorFeedback()
     {
         StartCoroutine(ShakeAnimation());
@@ -86,13 +85,13 @@ public class TowerMenuButton : MonoBehaviour
     private System.Collections.IEnumerator ShakeAnimation()
     {
         Vector3 originalPos = transform.localPosition;
-        float duration = 0.3f;
+        float duration = 0.25f;
         float elapsed = 0f;
 
         while (elapsed < duration)
         {
             elapsed += Time.unscaledDeltaTime;
-            float x = Random.Range(-5f, 5f);
+            float x = Random.Range(-4f, 4f);
             transform.localPosition = originalPos + new Vector3(x, 0, 0);
             yield return null;
         }
