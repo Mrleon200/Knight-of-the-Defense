@@ -441,7 +441,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &226955554
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1586,7 +1586,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   cam: {fileID: 519420031}
-  dragSpeed: 1
   minBounds: {x: -10, y: -5}
   maxBounds: {x: 10, y: 5}
 --- !u!1 &555201902
@@ -4168,7 +4167,7 @@ CanvasGroup:
   m_Enabled: 1
   m_Alpha: 0.95
   m_Interactable: 1
-  m_BlocksRaycasts: 1
+  m_BlocksRaycasts: 0
   m_IgnoreParentGroups: 0
 --- !u!114 &1583755075
 MonoBehaviour:
