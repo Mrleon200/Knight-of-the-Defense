@@ -13,26 +13,46 @@ public class BulletProjectile : MonoBehaviour
         _damage = damage;
         _speed  = speed;
         _type   = type;
-        Destroy(gameObject, 5f);
+
+        Destroy(gameObject, 5f); // tránh leak
     }
 
     private void Update()
     {
-        if (_target == null) { Destroy(gameObject); return; }
+        if (_target == null)
+        {
+            Destroy(gameObject);
+            return;
+        }
 
         Vector3 dir = (_target.position - transform.position).normalized;
-        transform.position += dir * _speed * Time.deltaTime;
-        transform.rotation  = Quaternion.Euler(0f, 0f,
-            Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg);
 
-        if (Vector2.Distance(transform.position, _target.position) < 0.2f)
+        // 🟢 Move
+        transform.position += dir * _speed * Time.deltaTime;
+
+        // 🟢 Rotate theo hướng bay (optional)
+        float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
+        transform.rotation = Quaternion.Euler(0f, 0f, angle);
+
+        // 🟢 Check hit (dùng sqrMagnitude cho chính xác hơn)
+        float dist = (_target.position - transform.position).sqrMagnitude;
+
+        if (dist < 0.04f) // ~0.2^2
+        {
             HitTarget();
+        }
     }
 
     private void HitTarget()
     {
+        if (_target == null) return;
+
         EnemyStats stats = _target.GetComponent<EnemyStats>();
-        if (stats != null) stats.TakeDamage(_damage, _type);
+        if (stats != null)
+        {
+            stats.TakeDamage(_damage, _type);
+        }
+
         Destroy(gameObject);
     }
 }

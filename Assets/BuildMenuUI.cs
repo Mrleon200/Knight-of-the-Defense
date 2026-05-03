@@ -8,7 +8,6 @@ public class BuildMenuUI : MonoBehaviour
 
     public RectTransform panel;
     public Image panelImage;
-    public Sprite squareSprite;
     public Sprite circleSprite;
     public TowerMenuButton[] buttons;
     public Vector2 panelOffset = new Vector2(0f, 120f);
@@ -22,18 +21,10 @@ public class BuildMenuUI : MonoBehaviour
         Instance = this;
         panel.gameObject.SetActive(false);
 
-        if (panelImage != null)
+        if (panelImage != null && circleSprite != null)
         {
-            if (squareSprite != null)
-            {
-                panelImage.sprite = squareSprite;
-                panelImage.type = Image.Type.Sliced;
-            }
-            else if (circleSprite != null)
-            {
-                panelImage.sprite = circleSprite;
-                panelImage.type = Image.Type.Simple;
-            }
+            panelImage.sprite = circleSprite;
+            panelImage.type = Image.Type.Simple;
         }
 
         panelCanvasGroup = panel.GetComponent<CanvasGroup>();
@@ -105,35 +96,8 @@ public class BuildMenuUI : MonoBehaviour
 
     private void ArrangeButtons()
     {
-        int count = buttons == null ? 0 : buttons.Length;
-        if (count == 0) return;
-
-        for (int i = 0; i < count; i++)
-        {
-            var btn = buttons[i];
-            if (btn == null) continue;
-
-            RectTransform rect = btn.GetComponent<RectTransform>();
-            if (rect == null) continue;
-
-            if (count == 1)
-            {
-                rect.anchoredPosition = Vector2.zero;
-                continue;
-            }
-
-            int cols = Mathf.CeilToInt(Mathf.Sqrt(count));
-            int rows = Mathf.CeilToInt((float)count / cols);
-            float spacing = Mathf.Max(rect.rect.width, rect.rect.height) * 1.2f;
-
-            int row = i / cols;
-            int col = i % cols;
-
-            float startX = -(cols - 1) * spacing * 0.5f;
-            float startY = (rows - 1) * spacing * 0.5f;
-
-            rect.anchoredPosition = new Vector2(startX + col * spacing, startY - row * spacing);
-        }
+        // Bỏ sắp xếp - để nút giữ vị trí trong panel
+        return;
     }
 
     private System.Collections.IEnumerator RefreshNextFrame()
