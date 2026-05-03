@@ -6,12 +6,15 @@ public class BuildNode : MonoBehaviour
 
     private GameObject currentTower;
 
-    private void OnMouseDown()
+    void OnMouseDown()
     {
-        if (currentTower != null) return;
+        if (currentTower != null)
+            return;
 
-        if (BuildMenuUI.Instance != null)
-            BuildMenuUI.Instance.Show(this);
+        if (BuildMenuUI.Instance != null && BuildMenuUI.Instance.IsShowing())
+            return;
+
+        BuildMenuUI.Instance.Show(this);
     }
 
     public void BuildTower(int index)
@@ -23,5 +26,10 @@ public class BuildNode : MonoBehaviour
             transform.position,
             Quaternion.identity
         );
+    }
+
+    public bool HasTower()
+    {
+        return currentTower != null;
     }
 }

@@ -11,9 +11,9 @@ public class UIManager : MonoBehaviour
     public TextMeshProUGUI livesText;
     public TextMeshProUGUI waveText;
 
-    [Header("Skill Cooldown")]
-    public Image meteorCooldownFill;
-    public Image reinforceCooldownFill;
+    // [Header("Skill Cooldown")]
+    // public Image meteorCooldownFill;
+    // public Image reinforceCooldownFill;
 
     [Header("Screens")]
     public GameObject winScreen;
@@ -37,17 +37,17 @@ public class UIManager : MonoBehaviour
         if (waveNotification != null) waveNotification.SetActive(false);
     }
 
-    private void Update()
-    {
-        // Cap nhat thanh cooldown skill theo thoi gian thuc
-        if (GlobalSkillSystem.Instance != null)
-        {
-            if (meteorCooldownFill != null)
-                meteorCooldownFill.fillAmount = GlobalSkillSystem.Instance.MeteorCooldownPercent();
-            if (reinforceCooldownFill != null)
-                reinforceCooldownFill.fillAmount = GlobalSkillSystem.Instance.ReinforceCooldownPercent();
-        }
-    }
+    // private void Update()
+    // {
+    //     // Cap nhat thanh cooldown skill theo thoi gian thuc
+    //     if (GlobalSkillSystem.Instance != null)
+    //     {
+    //         if (meteorCooldownFill != null)
+    //             meteorCooldownFill.fillAmount = GlobalSkillSystem.Instance.MeteorCooldownPercent();
+    //         if (reinforceCooldownFill != null)
+    //             reinforceCooldownFill.fillAmount = GlobalSkillSystem.Instance.ReinforceCooldownPercent();
+    //     }
+    // }
 
     // ── Cap nhat HUD ──────────────────────────────────────
     public void UpdateGold(int value)
@@ -83,7 +83,7 @@ public class UIManager : MonoBehaviour
     if (waveNotification == null) return;
 
     if (waveNotificationText != null)
-        waveNotificationText.text = $"Wave {waveNumber}!";
+        waveNotificationText.text = $"WAVE {waveNumber}!";
 
     waveNotification.SetActive(true);
 

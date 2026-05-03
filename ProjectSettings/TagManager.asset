@@ -5,6 +5,7 @@ TagManager:
   serializedVersion: 3
   tags:
   - Enemy
+  - Undefined
   layers:
   - Default
   - TransparentFX
@@ -42,8 +43,26 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
-  - name: 
-    uniqueID: 2866287729
+  - name: Ground
+    uniqueID: 243569217
+    locked: 0
+  - name: Rock
+    uniqueID: 3187565897
+    locked: 0
+  - name: New Layer 3
+    uniqueID: 2699723995
+    locked: 0
+  - name: New Layer 4
+    uniqueID: 2408574309
+    locked: 0
+  - name: New Layer 5
+    uniqueID: 3725597333
+    locked: 0
+  - name: New Layer 6
+    uniqueID: 1230864369
+    locked: 0
+  - name: New Layer 7
+    uniqueID: 3736265701
     locked: 0
   m_RenderingLayers:
   - Default
