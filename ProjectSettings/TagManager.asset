@@ -12,7 +12,7 @@ TagManager:
   - 
   - Water
   - UI
-  - 
+  - Map
   - 
   - 
   - 
@@ -41,6 +41,27 @@ TagManager:
   m_SortingLayers:
   - name: Default
     uniqueID: 0
+    locked: 0
+  - name: Ground
+    uniqueID: 2598874447
+    locked: 0
+  - name: rock
+    uniqueID: 1753192469
+    locked: 0
+  - name: Deco
+    uniqueID: 397980323
+    locked: 0
+  - name: New Layer 4
+    uniqueID: 4193144143
+    locked: 0
+  - name: New Layer 5
+    uniqueID: 139823575
+    locked: 0
+  - name: New Layer 6
+    uniqueID: 2803946209
+    locked: 0
+  - name: New Layer 7
+    uniqueID: 800696227
     locked: 0
   m_RenderingLayers:
   - Default
